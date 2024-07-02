@@ -7,12 +7,13 @@ const ConfirmBooking = ({ handleConfirmBooking, selectedSeatsMap }) => {
   }, [selectedSeatsMap]);
 
   return (
-    <div className="flex w-full max-w-3xl items-center justify-center align-middle">
-      <div className="mr-4 flex items-center justify-center rounded-lg border border-gray-700 bg-gray-100 p-4">
-        <h1 className="text-black-600 text-xl font-extrabold">Total : $ {price}</h1>
+    <div className="flex w-full justify-between px-2 align-middle sm:justify-end sm:px-0">
+      <div className="mr-4 flex w-40 justify-start rounded-lg border-2 border-gray-300 p-3 ">
+        <p className="text-black-600 text-l font-extrabold">Total : $ {price}</p>
       </div>
       <button
-        className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+        className="min-w-[150px] rounded bg-emerald-500 px-4 py-3 text-white hover:bg-emerald-600 disabled:bg-gray-400"
+        disabled={Object.keys(selectedSeatsMap).length === 0}
         onClick={handleConfirmBooking}
       >
         Confirm Booking

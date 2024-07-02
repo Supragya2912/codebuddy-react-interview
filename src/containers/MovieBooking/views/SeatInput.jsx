@@ -9,9 +9,9 @@ const SeatInput = ({ onSubmitNumberOfRows }) => {
   }, []);
 
   return (
-    <div className="flex w-full max-w-3xl items-center justify-center align-middle">
+    <div className="mb-4 flex w-full justify-between px-2 align-middle sm:mb-0 sm:justify-start sm:px-0">
       <input
-        className="focus:border-black-500 mr-3 rounded border-2 border-gray-300 p-3 focus:outline-none"
+        className="mr-3 w-40 rounded border-2 border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
         placeholder="Enter number of rows"
         type="number"
         onChange={handleChange}
@@ -22,7 +22,7 @@ const SeatInput = ({ onSubmitNumberOfRows }) => {
         }}
       ></input>
       <button
-        className="rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
+        className="min-w-[150px] rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
         onClick={() => onSubmitNumberOfRows(rows)}
       >
         Submit

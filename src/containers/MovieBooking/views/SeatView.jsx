@@ -20,11 +20,14 @@ const SeatView = ({ seatRows, onClickSeat, selectedSeatsMap }) =>
             <div className="mt-2 text-xs font-normal">${row.pricePerSeat}/seat</div>
           </div>
 
-          <div className="flex w-[100%] justify-center sm:w-[calc(100%-100px)]" key={row.id}>
+          <div className="flex w-[calc(100%-100px)] justify-center" key={row.id}>
             {row?.seats?.map((seat) => (
               <Seat
                 key={seat.id}
-                seat={seat}
+                seatId={seat.id}
+                pricePerSeat={row.pricePerSeat}
+                isReserved={seat.isReserved}
+                seatNumber={seat.seatNumber}
                 onClickSeat={onClickSeat}
                 isSelected={!!selectedSeatsMap[seat.id]}
               />
@@ -32,6 +35,15 @@ const SeatView = ({ seatRows, onClickSeat, selectedSeatsMap }) =>
           </div>
         </div>
       ))}
+      <div
+        style={{
+          width: seatRows.length * 61 + 100,
+        }}
+        className={"my-[2px] mt-4 flex min-w-full flex-col justify-between px-[10px] "}
+      >
+        <div className="ml-[100px] flex w-[calc(100%-100px)] justify-center">SCREEN THIS SIDE</div>
+        <div className="trapezium ml-[100px]"></div>
+      </div>
     </div>
   ) : null;
 

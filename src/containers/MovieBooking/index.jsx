@@ -1,69 +1,125 @@
-// add input box to take count and render seatview based on count
-// min count = 3, max count = 10, add input validation properly
 import { useCallback, useState } from "react";
 import SeatView from "../../containers/MovieBooking/views/SeatView";
 import SeatInput from "../../containers/MovieBooking/views/SeatInput";
 import ErrorContainer from "../../containers/MovieBooking/views/ErrorContainer";
-import { fetchSeatsByCount } from "../../utils/api";
+import { fetchSeatsByCount, confirmBooking } from "../../utils/api";
 import { addSeatPrice } from "../../utils/helpers";
 import ConfirmBooking from "./views/ConfirmBooking";
+import { useNavigate } from "react-router-dom";
 
 const MovieBooking = () => {
-  const [seatData, setSeatData] = useState([]);
-  const [error, setError] = useState("");
-  const [selectedSeatsMap, setSelectedSeatsMap] = useState({});
+  const navigate = useNavigate();
 
-  const handleConfirmBooking = () => {
-    // console.log(selectedSeat);
-    // if (selectedSeat.length < 1 || selectedSeat.length > 5) {
-    //   setError("Please select seats between 1 and 5");
-    //   return;
-    // } else {
-    //   setError("");
-    // }
-    //to complete the handleBooking function
-  };
+  const [state, setState] = useState({
+    seatData: [],
+    error: "",
+    selectedSeatsMap: {},
+  });
 
-  const handleSeatClick = ({ id, pricePerSeat }) => {
-    setSelectedSeatsMap((prevSelectedSeats) =>
-      prevSelectedSeats[id]
-        ? Object.fromEntries(Object.entries(prevSelectedSeats).filter(([key]) => key !== id))
-        : { ...prevSelectedSeats, [id]: pricePerSeat },
-    );
-  };
+  const handleConfirmBooking = useCallback(async () => {
+    const selectedSeatIds = Object.keys(state.selectedSeatsMap);
 
-  const handleSeats = useCallback(async (rows) => {
-    if (rows < 3 || rows > 10) {
-      setError("Row number should be from 3 and 10");
-      setSeatData([]);
-      return;
-    }
+    await confirmBooking(selectedSeatIds)
+      .then((data) => {
+        console.log("Booking confirmed", data);
+        navigate("/booking-success");
+      })
+      .catch((e) => {
+        console.error(e);
+        setState((prevState) => ({
+          ...prevState,
+          error: "Sorry, we encountered an error and your booking was not done",
+        }));
+      });
+  }, [state.selectedSeatsMap]);
 
-    await fetchSeatsByCount(rows).then((data) => {
-      setSeatData(addSeatPrice(data.data));
-      setError("");
+  const handleSeatClick = useCallback(({ id, pricePerSeat }) => {
+    setState((prevState) => {
+      let newSeatsMap = {};
+      let error = "";
+
+      if (prevState.selectedSeatsMap[id]) {
+        // If seat already exists, deselect it
+        newSeatsMap = Object.fromEntries(
+          Object.entries(prevState.selectedSeatsMap).filter(([key]) => key !== id),
+        );
+      } else {
+        if (Object.keys(prevState.selectedSeatsMap).length === 5) {
+          error = "You can select only 5 seats";
+          newSeatsMap = prevState.selectedSeatsMap;
+        } else {
+          newSeatsMap = { ...prevState.selectedSeatsMap, [id]: pricePerSeat };
+        }
+      }
+
+      return {
+        ...prevState,
+        selectedSeatsMap: newSeatsMap,
+        error,
+      };
     });
   }, []);
 
-  console.log(selectedSeatsMap);
+  const onSubmitNumberOfRows = useCallback(async (rows) => {
+    if (rows < 3 || rows > 10) {
+      setState((prevState) => ({
+        ...prevState,
+        error: "Row number should be from 3 and 10",
+        seatData: [],
+      }));
+      return;
+    }
+
+    await fetchSeatsByCount(rows)
+      .then((data) => {
+        setState((prevState) => ({
+          ...prevState,
+          error: "",
+          seatData: addSeatPrice(data.data),
+          selectedSeatsMap: {},
+        }));
+      })
+      .catch((e) => {
+        console.error(e);
+        setState((prevState) => ({
+          ...prevState,
+          error: "Sorry, we encountered an error and could not fetch seats",
+          seatData: [],
+          selectedSeatsMap: {},
+        }));
+      });
+  }, []);
+
+  const setErrorEmpty = useCallback(() => {
+    setState((prevState) => ({
+      ...prevState,
+      error: "",
+    }));
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h1 className="text-xl font-bold">Book your seats</h1>
-      <ErrorContainer error={error} />
-      <div className="mt-4 flex w-full flex-col justify-between sm:flex-row">
-        <SeatInput onSubmitNumberOfRows={handleSeats} />
-        {seatData.length > 0 && (
-          <ConfirmBooking
-            onConfirmBooking={handleConfirmBooking}
-            selectedSeatsMap={selectedSeatsMap}
-          />
-        )}
+      <div className="w-full max-w-3xl">
+        <h1 className="text-center text-xl font-bold">Book your seats</h1>
+        <ErrorContainer error={state.error} onClose={setErrorEmpty} />
+        <div
+          className={`mt-4 flex w-full flex-col ${
+            state.seatData.length > 0 ? "justify-between" : "justify-center"
+          } sm:flex-row`}
+        >
+          <SeatInput onSubmitNumberOfRows={onSubmitNumberOfRows} />
+          {state.seatData.length > 0 && (
+            <ConfirmBooking
+              handleConfirmBooking={handleConfirmBooking}
+              selectedSeatsMap={state.selectedSeatsMap}
+            />
+          )}
+        </div>
       </div>
       <SeatView
-        seatRows={seatData}
+        seatRows={state.seatData}
         onClickSeat={handleSeatClick}
-        selectedSeatsMap={selectedSeatsMap}
+        selectedSeatsMap={state.selectedSeatsMap}
       />
     </div>
   );
