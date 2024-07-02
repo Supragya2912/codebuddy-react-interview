@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 const ErrorContainer = ({ error, onClose }) =>
   error ? (
     <div
-      className="relative mt-3 flex justify-between rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+      className="relative mx-2 mt-3 flex justify-between rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 sm:mx-0"
       role="alert"
     >
       <span className="block sm:inline">{error}</span>

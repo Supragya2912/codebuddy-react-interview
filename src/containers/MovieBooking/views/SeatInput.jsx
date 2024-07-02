@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 
-const SeatInput = ({ onSubmitNumberOfRows }) => {
+const SeatInput = ({ onSubmitNumberOfRows, seatDataExists }) => {
   const [rows, setRows] = useState(0);
 
   const handleChange = useCallback((e) => {
@@ -9,10 +9,16 @@ const SeatInput = ({ onSubmitNumberOfRows }) => {
   }, []);
 
   return (
-    <div className="mb-4 flex w-full justify-between px-2 align-middle sm:mb-0 sm:justify-start sm:px-0">
+    <div
+      className={`mb-4 flex w-full justify-between px-2 align-middle md:mb-0 ${
+        seatDataExists ? "md:justify-center" : "md:justify-start"
+      } md:px-0`}
+    >
       <input
-        className="mr-3 w-40 rounded border-2 border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
-        placeholder="Enter number of rows"
+        className={`mr-4 ${
+          seatDataExists ? "md:w-full" : "md:w-40"
+        } w-full rounded border-2 border-gray-300 p-3 focus:border-gray-500 focus:outline-none`}
+        placeholder="Enter number of rows in movie theater"
         type="number"
         onChange={handleChange}
         onKeyDown={(event) => {
@@ -22,7 +28,7 @@ const SeatInput = ({ onSubmitNumberOfRows }) => {
         }}
       ></input>
       <button
-        className="min-w-[150px] rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
+        className="min-w-[170px] rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
         onClick={() => onSubmitNumberOfRows(rows)}
       >
         Submit
@@ -33,6 +39,7 @@ const SeatInput = ({ onSubmitNumberOfRows }) => {
 
 SeatInput.propTypes = {
   onSubmitNumberOfRows: PropTypes.func,
+  seatDataExists: PropTypes.bool,
 };
 
 export default SeatInput;
