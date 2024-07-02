@@ -1,51 +1,43 @@
-import { Icon } from "@iconify/react";
 import * as propTypes from "../../../utils/propTypes";
 import PropTypes from "prop-types";
+import Seat from "./Seat";
 
-const SeatView = ({ seatRows, onClickSeat, userSelectedSeatIds }) => (
-  <div>
-    {seatRows?.length > 0 ? (
-      seatRows.map((row, index) => (
-        <div key={index}>
-          <div className="mt-1 font-bold text-gray-500">Row {seatRows.length - index}</div>
-          <div className="flex justify-center" key={row.id}>
+const SeatView = ({ seatRows, onClickSeat, selectedSeatsMap }) =>
+  (seatRows ?? []).length > 0 ? (
+    <div className="mt-4 w-full max-w-3xl overflow-auto rounded-lg border border-gray-300 p-4 shadow-2xl">
+      {seatRows.map((row, index) => (
+        <div
+          key={index}
+          style={{
+            width: seatRows.length * 61 + 100,
+          }}
+          className={`my-[2px] flex min-w-full justify-between rounded-[2px] px-[10px] ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-gray-100"
+          }`}
+        >
+          <div className="mt-1 flex w-[100px] flex-col items-center justify-center font-bold text-gray-500">
+            <div className="text-sm">Row {seatRows.length - index}</div>
+            <div className="mt-2 text-xs font-normal">${row.pricePerSeat}/seat</div>
+          </div>
+
+          <div className="flex w-[100%] justify-center sm:w-[calc(100%-100px)]" key={row.id}>
             {row?.seats?.map((seat) => (
-              <div key={seat.id}>
-                <button
-                  onClick={() => !seat.isReserved && onClickSeat(seat.id)}
-                  disabled={seat.isReserved}
-                  className="flex flex-col items-center p-1"
-                >
-                  <Icon
-                    icon="mdi:seat"
-                    className={`mr-2 ${
-                      seat.isReserved
-                        ? "text-gray-500"
-                        : userSelectedSeatIds?.includes(seat.id)
-                          ? "text-green-500"
-                          : ""
-                    }`}
-                    fontSize={45}
-                  />
-                  <div className="flex space-x-2">
-                    <h6>{seat.seatNumber} </h6>
-                    <h6>{seat.isReserved ? "R" : ""}</h6>
-                  </div>
-                </button>
-              </div>
+              <Seat
+                key={seat.id}
+                seat={seat}
+                onClickSeat={onClickSeat}
+                isSelected={!!selectedSeatsMap[seat.id]}
+              />
             ))}
           </div>
         </div>
-      ))
-    ) : (
-      <div className="text-center">Please select row number to view seats</div>
-    )}
-  </div>
-);
+      ))}
+    </div>
+  ) : null;
 
 SeatView.propTypes = {
   seatRows: propTypes.seatRowsPropTypes,
-  userSelectedSeatIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedSeatsMap: PropTypes.objectOf(PropTypes.number).isRequired,
   onClickSeat: PropTypes.func.isRequired,
 };
 
